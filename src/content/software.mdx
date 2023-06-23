@@ -1,0 +1,88 @@
+---
+slug: "/software"
+title: "Software"
+---
+
+---
+
+# RaiSim
+
+RaiSim is a high-speed, super-precise physics engine crafted by RaiSim Tech Inc., designed specifically for simulating robots. But it's more than just a robot simulator! You can use RaiSim to simulate any kind of rigid body with excellent efficiency.
+
+## Why should you use RaiSim?
+
+1. **Speed**: RaiSim has been benchmarked against other physics engines, and it's super fast! Check out the [benchmark here](#).[1]
+
+2. **Accuracy**: There's a bunch of papers that highlight just how precise RaiSim can be. Take a look at these academic works for more details: [2, 3, 4, 5, 6].
+
+3. **Ease of Use**: RaiSim is the easiest C++ simulation library to pick up and use!
+
+4. **Minimal Dependencies**: RaiSim only depends on STL and Eigen, so there's less things for you to worry about.
+
+## System Requirements
+
+- **Linux**: We suggest using Ubuntu 20.04 or higher. Make sure your X86 CPU supports AVX2 instructions (Intel Haswell or newer).
+
+- **Windows 10**: You'll need Visual Studio 2019 or newer. Only X86 CPUs are supported.
+
+- **Mac**: Keep your OS up to date! Your system needs to support the AVX2 instruction set. Both M1 (Apple ARM) and X86 systems are okay.
+
+## Example Code
+
+Here's a quick taste of how you can use RaiSim to simulate a world with a robot and a ball. You can visualize this using RaiSim's Unity or Unreal tools.
+
+```cpp
+#include “raisim/World.hpp”
+#include "raisim/RaisimServer.hpp"
+
+int main() {
+  // Set your activation key
+  raisim::World::setActivationKey("PATH_TO_THE_ACTIVATION_KEY");
+
+  // Create a new world
+  raisim::World world;
+
+  // Add a robot
+  auto anymal = world.addArticulatedSystem(PATH_TO_URDF);
+
+  // Add a ball
+  auto ball = world.addSphere(1, 1);
+
+  // Add the ground
+  auto ground = world.addGround();
+
+  // Set the time step for the simulation
+  world.setTimeStep(0.002);
+
+  // Launch RaiSim server for visualization
+  raisim::RaisimServer server(&world);
+  server.launchServer();
+
+  // Loop the simulation
+  while (1) {
+    raisim::MSLEEP(2);
+    server.integrateWorldThreadSafe();
+  }
+
+  // Terminate the server
+  server.killServer();
+}
+```
+
+And here's a simple CMake file to compile the above code:
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(raisim_examples LANGUAGES CXX)
+
+find_package(raisim CONFIG REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+include_directories (${EIGEN3_INCLUDE_DIRS})
+
+add_executable(APP_NAME ${file_name})
+target_link_libraries(APP_NAME PUBLIC raisim::raisim pthread)
+target_include_directories(APP_NAME PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+```
+
+Want to see it in action? You can find a working example [here](https://github.com/raisimTech/raisimExample)!

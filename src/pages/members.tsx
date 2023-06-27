@@ -41,32 +41,21 @@ const PeopleSummary = () => {
 
   const people = data.allFile.nodes;
 
-  const excludedPeople = people
-    .map((person) => person.childMdx?.frontmatter.title)
-    .filter((person) => {
-      for (const className in classData) {
-        if (classData[className].includes(person)) {
-          return false;
-        }
-      }
-      return true;
-    });
-
-  const updatedClassData = {
-    ...classData,
-    master_students: [...classData.master_students, ...excludedPeople],
-  };
-
   const getNaturalName = (normalizedName) => {
     const name = normalizedName.replace("_", " ");
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
 
   const renderPeopleByClass = (className) => {
-    const peopleOfClass = updatedClassData[className] || [];
+    const peopleOfClass = classData[className] || [];
     const filteredPeople = people.filter((person) =>
       peopleOfClass.includes(person.childMdx?.frontmatter.title)
     );
+    const peopleOfClassAsMdx = peopleOfClass.map((person) => {
+      return people.find((p) => p.childMdx?.frontmatter.title === person);
+    });
+
+    console.log(peopleOfClassAsMdx);
 
     return (
       <Box mb={8}>
@@ -74,14 +63,15 @@ const PeopleSummary = () => {
           {getNaturalName(className)}
         </Heading>
         <SimpleGrid columns={[1, 2, 3]} gap={4}>
-          {filteredPeople.map((person) => {
-            const qualifications = person.childMdx?.body
+          {peopleOfClassAsMdx.map((person) => {
+            if (person?.childMdx === undefined) return null;
+            const qualifications = person?.childMdx?.body
               .replace("Qualifications:", "")
               .trim();
 
             return (
               <Box
-                key={person.childMdx.frontmatter.title}
+                key={person?.childMdx.frontmatter.title}
                 p={4}
                 display="flex"
                 flexDirection="column"
@@ -97,10 +87,10 @@ const PeopleSummary = () => {
               >
                 <Image
                   src={
-                    person.childMdx?.frontmatter.featuredImage.childImageSharp
+                    person?.childMdx?.frontmatter.featuredImage.childImageSharp
                       .gatsbyImageData.images.fallback.src
                   }
-                  alt={person.childMdx?.frontmatter.title}
+                  alt={person?.childMdx?.frontmatter.title}
                   objectFit="cover"
                   borderRadius="lg"
                   mb={4}
@@ -108,7 +98,7 @@ const PeopleSummary = () => {
                   height="200px"
                 />
                 <Heading as="h3" size="md" mb={2} top={0}>
-                  {person.childMdx?.frontmatter.title}
+                  {person?.childMdx?.frontmatter.title}
                 </Heading>
                 <Box justifyContent={"top"} textAlign={"left"}>
                   <UnorderedList>
@@ -142,7 +132,7 @@ const PeopleSummary = () => {
           >
             Members
           </Heading>
-          {Object.keys(updatedClassData).map((className) =>
+          {Object.keys(classData).map((className) =>
             renderPeopleByClass(className)
           )}
         </Container>

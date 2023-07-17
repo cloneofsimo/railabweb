@@ -20,7 +20,7 @@ const theme = {
         wordWrap: 'break-word',
       },
       'pre' :{ 
-        backgroundColor: mode('gray.200', 'whiteAlpha.300')(props),
+        backgroundColor: mode('gray.200', 'gray.300')(props),
         color: mode('gray.200', 'whiteAlpha.300')(props),
         whiteSpace: 'pre-wrap', 
         fontSize: '0.9em',  // smaller font size
